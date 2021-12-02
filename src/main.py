@@ -109,7 +109,7 @@ def push_content_to_confluence(content, folder, title, parent_title, file_path=N
     ]
     if file_path is not None:
         parts.append('')
-        parts.append(f'[Open on Github.](https://github.com/{repository})/blob/{branch}/{repository_file_path(file_path)}')
+        parts.append(f'[Open on Github.](https://github.com/{repository}/blob/{branch}/{repository_file_path(file_path)})')
     content = '\n'.join(parts)
 
     tmp_file_path = f'{folder}/_mark_tmp.md'
