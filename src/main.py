@@ -1,5 +1,6 @@
 import os
 import json
+import re
 from pymojihash import hash_to_emoji
 
 
