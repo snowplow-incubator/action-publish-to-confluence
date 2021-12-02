@@ -34,8 +34,8 @@ def get_title(file_path, parent_titles):
         for line in lines:
             line = line.strip()
             if line:
-                if line.startswith('#'):
-                    line = line[1:]
+                if line.startswith('<!--'): continue
+                if line.startswith('#'): line = line[1:]
                 return append_hash_to_title(line.strip(), parent_titles)
 
     return folder_to_title(file_path, parent_titles)
@@ -77,22 +77,36 @@ def push_file_to_confluence(file_path, title, parent_title):
         parent_title=parent_title
     )
 
+def find_images_in_markdown(content):
+    regex = r"!\[[^\]]*\]\((?P<filename>.*?)(?=\"|\))(?P<optionalpart>\".*\")?\)"
+    matches = re.finditer(regex, content)
+
+    images = []
+    for _, match in enumerate(matches, start=1):
+        groups = match.groupdict()
+        images.append(groups['filename'].strip())
+    return images
+
 def push_content_to_confluence(content, folder, title, parent_title):
     space = envs['confluence_space']
 
-    updated_contents = content
+    headers = []
     if parent_title is not None:
-        updated_contents = f"""<!-- Parent: {parent_title} -->
-{updated_contents}"""
+        headers.append(f'<!-- Parent: {parent_title} -->')
+    images = find_images_in_markdown(content)
+    for image in images:
+        headers.append(f'<!-- Attachment: {image} -->')
+    headers.append(f'<!-- Space: {space} -->')
+    headers.append(f'<!-- Title: {title} -->')
 
-    updated_contents = f"""<!-- Space: {space} -->
-<!-- Title: {title} -->
-{updated_contents}
-"""
+    content = '\n'.join([
+        '\n'.join(headers),
+        content
+    ])
 
     tmp_file_path = f'{folder}/_mark_tmp.md'
     with open(tmp_file_path, 'w') as f:
-        f.write(updated_contents)
+        f.write(content)
 
     mark_executable = os.getenv('MARK_EXECUTABLE', default='mark')
     username = envs['confluence_username']
