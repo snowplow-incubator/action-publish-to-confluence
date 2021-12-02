@@ -3,6 +3,10 @@ import json
 from pymojihash import hash_to_emoji
 
 
+workspace = os.environ.get('GITHUB_WORKSPACE')
+if not workspace:
+    raise Exception('No workspace is set')
+
 envs = {}
 for key in ['confluence_url', 'confluence_username', 'confluence_token', 'confluence_space']:
     value = os.environ.get(f'INPUT_{key.upper()}')
@@ -101,7 +105,8 @@ def push_content_to_confluence(content, folder, title, parent_title):
 
 def folder_to_title(folder, parent_titles):
     title = folder
-    if title.startswith('./'): title = title[2:]
+    if title.startswith(workspace): title = title[len(workspace):]
+    if title.startswith('/'): title = title[1:]
     title = title.replace('/', ' – ')
     return append_hash_to_title(title, parent_titles)
 
@@ -132,10 +137,6 @@ def process_and_upload_folder_structure(folder_structure, parent_titles):
 
     for child in folder_structure["children"]:
         process_and_upload_folder_structure(folder_structure=child, parent_titles=parent_titles + [title])
-
-workspace = os.environ.get('GITHUB_WORKSPACE')
-if not workspace:
-    raise Exception('No workspace is set')
 
 root_structures = get_folder_structure(workspace)
 for root_structure in root_structures:
