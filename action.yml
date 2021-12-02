@@ -1,0 +1,21 @@
+# action.yml
+name: 'Hello World'
+description: 'Greet someone and record the time'
+inputs:
+  confluence_url:
+    description: 'URL to your Confluence hosting (with /wiki at the end)'
+    required: true
+  confluence_username:
+    description: 'Username of the token user'
+    required: true
+  confluence_token:
+    description: 'Token for the user'
+    required: true
+  confluence_space:
+    description: 'Space on Confluence to use'
+    required: true
+runs:
+  using: 'docker'
+  image: 'Dockerfile'
+  args:
+    - ${{ inputs.who-to-greet }}
