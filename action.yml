@@ -2,6 +2,12 @@
 name: 'Hello World'
 description: 'Greet someone and record the time'
 inputs:
+  repository:
+    description: 'Repository name with owner. For example, owner/repo'
+    default: ${{ github.repository }}
+  branch:
+    description: 'Git branch to use in links on Confluence'
+    default: 'master'
   confluence_url:
     description: 'URL to your Confluence hosting (with /wiki at the end)'
     required: true

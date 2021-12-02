@@ -9,7 +9,7 @@ if not workspace:
     raise Exception('No workspace is set')
 
 envs = {}
-for key in ['confluence_url', 'confluence_username', 'confluence_token', 'confluence_space']:
+for key in ['repository', 'branch', 'confluence_url', 'confluence_username', 'confluence_token', 'confluence_space']:
     value = os.environ.get(f'INPUT_{key.upper()}')
     if not value:
         raise Exception(f'Missing value for {key}')
@@ -75,7 +75,8 @@ def push_file_to_confluence(file_path, title, parent_title):
         content=content,
         folder=os.path.dirname(file_path),
         title=title,
-        parent_title=parent_title
+        parent_title=parent_title,
+        file_path=file_path
     )
 
 def find_images_in_markdown(content):
@@ -88,8 +89,10 @@ def find_images_in_markdown(content):
         images.append(groups['filename'].strip())
     return images
 
-def push_content_to_confluence(content, folder, title, parent_title):
+def push_content_to_confluence(content, folder, title, parent_title, file_path=None):
     space = envs['confluence_space']
+    repository = envs['repository']
+    branch = envs['branch']
 
     headers = []
     if parent_title is not None:
@@ -100,10 +103,14 @@ def push_content_to_confluence(content, folder, title, parent_title):
     headers.append(f'<!-- Space: {space} -->')
     headers.append(f'<!-- Title: {title} -->')
 
-    content = '\n'.join([
+    parts = [
         '\n'.join(headers),
         content
-    ])
+    ]
+    if file_path is not None:
+        parts.append('')
+        parts.append(f'[Open on Github.](https://github.com/{repository})/blob/{branch}/{repository_file_path(file_path)}')
+    content = '\n'.join(parts)
 
     tmp_file_path = f'{folder}/_mark_tmp.md'
     with open(tmp_file_path, 'w') as f:
@@ -117,6 +124,11 @@ def push_content_to_confluence(content, folder, title, parent_title):
     os.system(f'cd {folder} && {mark_executable} -u {username} -p {password} -b {confluence_url} -f _mark_tmp.md')
 
     os.remove(tmp_file_path)
+
+def repository_file_path(file_path):
+    if file_path.startswith(workspace): file_path = file_path[len(workspace):]
+    if file_path.startswith('/'): file_path = file_path[1:]
+    return file_path
 
 def folder_to_title(folder, parent_titles):
     title = folder
