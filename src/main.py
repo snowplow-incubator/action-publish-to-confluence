@@ -1,7 +1,6 @@
 import os
 import json
-import base64
-import hashlib
+from pymojihash import hash_to_emoji
 
 
 envs = {}
@@ -108,10 +107,8 @@ def folder_to_title(folder, parent_titles):
 
 def append_hash_to_title(title, parent_titles):
     if len(parent_titles) == 0: return title
-
-    hasher = hashlib.sha1('-'.join(parent_titles).encode('utf-8'))
-    hashed = base64.urlsafe_b64encode(hasher.digest()).decode("utf-8")[:3]
-    return f'{title} [{hashed}]'
+    emoji = hash_to_emoji('-'.join(parent_titles))
+    return f'{title} {emoji}'
 
 def process_and_upload_folder_structure(folder_structure, parent_titles):
     print('Publishing', folder_structure['folder'])
