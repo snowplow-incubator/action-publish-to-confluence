@@ -86,7 +86,9 @@ def find_images_in_markdown(content):
     images = []
     for _, match in enumerate(matches, start=1):
         groups = match.groupdict()
-        images.append(groups['filename'].strip())
+        image = groups['filename'].strip()
+        if image.startswith('http'): continue
+        images.append(image)
     return images
 
 def push_content_to_confluence(content, folder, title, parent_title, file_path=None):
