@@ -7,7 +7,7 @@ inputs:
     default: ${{ github.repository }}
   branch:
     description: 'Git branch to use in links on Confluence'
-    default: 'master'
+    default: 'main'
   confluence_url:
     description: 'URL to your Confluence hosting (with /wiki at the end)'
     required: true
@@ -23,5 +23,3 @@ inputs:
 runs:
   using: 'docker'
   image: 'Dockerfile'
-  args:
-    - ${{ inputs.who-to-greet }}

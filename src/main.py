@@ -121,7 +121,7 @@ def push_content_to_confluence(content, folder, title, parent_title, file_path=N
     password = envs['confluence_token']
     confluence_url = envs['confluence_url']
 
-    os.system(f'cd {folder} && {mark_executable} -u {username} -p {password} -b {confluence_url} -k -f _mark_tmp.md')
+    os.system(f'cd "{folder}" && {mark_executable} -u {username} -p {password} -b {confluence_url} -k -f _mark_tmp.md')
 
     os.remove(tmp_file_path)
 
